@@ -1,8 +1,10 @@
 package io.jmix.petclinic.entity.visit;
 
+import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -10,6 +12,7 @@ import io.jmix.core.metamodel.annotation.JmixProperty;
 import io.jmix.petclinic.entity.NamedEntity;
 import io.jmix.petclinic.entity.User;
 import io.jmix.petclinic.entity.pet.Pet;
+import io.jmix.petclinic.entity.veterinarian.Specialty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.CreatedBy;
@@ -19,6 +22,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,6 +40,19 @@ public class Visit {
     @Column(name = "ID", nullable = false)
     @Id
     private UUID id;
+
+    @OnDelete(DeletePolicy.CASCADE)
+    @JoinTable(name = "PETCLINIC_VISIT_SPECIALTY_LINK",
+            joinColumns = @JoinColumn(name = "VISIT_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "SPECIALTY_ID", referencedColumnName = "ID"))
+    @ManyToMany
+    private List<Specialty> requiredSpecialities;
+
+    @JoinTable(name = "PETCLINIC_VISIT_TREATMENT_ROOM_LINK",
+            joinColumns = @JoinColumn(name = "VISIT_ID"),
+            inverseJoinColumns = @JoinColumn(name = "TREATMENT_ROOM_ID"))
+    @ManyToMany
+    private List<TreatmentRoom> treatmentRooms;
 
     @JoinColumn(name = "PET_ID", nullable = false)
     @NotNull
@@ -90,6 +107,22 @@ public class Visit {
     @DeletedDate
     @Column(name = "DELETED_DATE")
     private OffsetDateTime deletedDate;
+
+    public List<TreatmentRoom> getTreatmentRooms() {
+        return treatmentRooms;
+    }
+
+    public void setTreatmentRooms(List<TreatmentRoom> treatmentRooms) {
+        this.treatmentRooms = treatmentRooms;
+    }
+
+    public List<Specialty> getRequiredSpecialities() {
+        return requiredSpecialities;
+    }
+
+    public void setRequiredSpecialities(List<Specialty> requiredSpecialities) {
+        this.requiredSpecialities = requiredSpecialities;
+    }
 
     @DependsOnProperties({"type"})
     @JmixProperty

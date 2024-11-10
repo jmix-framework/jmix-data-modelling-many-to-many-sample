@@ -11,5 +11,6 @@ import io.jmix.flowui.view.*;
 @ViewController("petclinic_Specialty.detail")
 @ViewDescriptor("specialty-detail-view.xml")
 @EditedEntityContainer("specialtyDc")
+@DialogMode(width = "50em", height = "40em")
 public class SpecialtyDetailView extends StandardDetailView<Specialty> {
 }

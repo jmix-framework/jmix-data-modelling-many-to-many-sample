@@ -5,8 +5,11 @@
     <data>
         <instance id="specialtyDc"
                   class="io.jmix.petclinic.entity.veterinarian.Specialty">
-            <fetchPlan extends="_base"/>
+            <fetchPlan extends="_base">
+                <property name="visits" fetchPlan="_base"/>
+            </fetchPlan>
             <loader/>
+            <collection id="visitsDc" property="visits"/>
         </instance>
     </data>
     <facets>
@@ -20,6 +23,16 @@
         <formLayout id="form" dataContainer="specialtyDc" minWidth="300px">
             <textField id="nameField" minWidth="300px" property="name"/>
         </formLayout>
+        <h3 text="msg://io.jmix.petclinic.entity.veterinarian/Specialty.visits" />
+        <dataGrid id="visitsDataGrid" dataContainer="visitsDc" width="100%" height="100%">
+            <columns>
+                <column property="type"/>
+                <column property="visitStart"/>
+                <column property="visitEnd"/>
+                <column property="description"/>
+                <column property="treatmentStatus"/>
+            </columns>
+        </dataGrid>
         <hbox id="detailActions">
             <button id="saveAndCloseBtn" action="saveAction"/>
             <button id="closeBtn" action="closeAction"/>

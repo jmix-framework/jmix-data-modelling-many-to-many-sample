@@ -8,20 +8,24 @@
             <fetchPlan extends="_base">
                 <property name="pet" fetchPlan="_base"/>
                 <property name="assignedNurse" fetchPlan="_base"/>
+                <property name="treatmentRooms" fetchPlan="_base"/>
+                <property name="requiredSpecialities" fetchPlan="_base"/>
             </fetchPlan>
             <loader/>
+            <collection id="treatmentRoomsDc" property="treatmentRooms"/>
+            <collection id="requiredSpecialitiesDc" property="requiredSpecialities"/>
         </instance>
         <collection id="petsDc"
                     class="io.jmix.petclinic.entity.pet.Pet">
-        <fetchPlan extends="_base">
-            <property name="type" fetchPlan="_instance_name"/>
-            <property name="owner" fetchPlan="_instance_name"/>
-        </fetchPlan>
-        <loader id="petsDl">
-            <query>
-                <![CDATA[select e from petclinic_Pet e]]>
-            </query>
-        </loader>
+            <fetchPlan extends="_base">
+                <property name="type" fetchPlan="_instance_name"/>
+                <property name="owner" fetchPlan="_instance_name"/>
+            </fetchPlan>
+            <loader id="petsDl">
+                <query>
+                    <![CDATA[select e from petclinic_Pet e]]>
+                </query>
+            </loader>
         </collection>
     </data>
     <facets>
@@ -42,11 +46,47 @@
             <comboBox id="typeField" property="type"/>
             <dateTimePicker id="visitStartField" property="visitStart"/>
             <dateTimePicker id="visitEndField" property="visitEnd"/>
-            <entityComboBox id="assignedNurseField" property="assignedNurse" />
+            <entityComboBox id="assignedNurseField" property="assignedNurse"/>
             <comboBox id="treatmentStatusField" property="treatmentStatus"/>
             <textArea id="descriptionField" property="description" colspan="2"/>
         </formLayout>
-        <hbox id="detailActions">
+        <tabSheet width="100%" height="100%">
+            <tab id="treatmentRoomsTab" label="msg://io.jmix.petclinic.entity.visit/Visit.treatmentRooms">
+                <vbox width="100%">
+                    <hbox id="treatmentRoomsButtonsPanel" classNames="buttons-panel">
+                        <button action="treatmentRoomsDataGrid.add"/>
+                        <button action="treatmentRoomsDataGrid.exclude"/>
+                    </hbox>
+                    <dataGrid id="treatmentRoomsDataGrid" dataContainer="treatmentRoomsDc" width="100%" height="300px">
+                        <actions>
+                            <action id="add" type="list_add"/>
+                            <action id="exclude" type="list_exclude"/>
+                        </actions>
+                        <columns>
+                            <column property="name"/>
+                        </columns>
+                    </dataGrid>
+                </vbox>
+            </tab>
+            <tab id="requiredSpecialitiesTab" label="msg://io.jmix.petclinic.entity.visit/Visit.requiredSpecialities">
+            <vbox width="100%">
+                <hbox id="requiredSpecialitiesButtonsPanel" classNames="buttons-panel">
+                    <button action="requiredSpecialitiesDataGrid.add"/>
+                    <button action="requiredSpecialitiesDataGrid.exclude"/>
+                </hbox>
+                <dataGrid id="requiredSpecialitiesDataGrid" dataContainer="requiredSpecialitiesDc" width="100%" height="300px">
+                    <actions>
+                        <action id="add" type="list_add"/>
+                        <action id="exclude" type="list_exclude"/>
+                    </actions>
+                    <columns>
+                        <column property="name"/>
+                    </columns>
+                </dataGrid>
+            </vbox>
+            </tab>
+        </tabSheet>
+                <hbox id="detailActions">
             <button id="saveAndCloseBtn" action="saveAction"/>
             <button id="closeBtn" action="closeAction"/>
         </hbox>

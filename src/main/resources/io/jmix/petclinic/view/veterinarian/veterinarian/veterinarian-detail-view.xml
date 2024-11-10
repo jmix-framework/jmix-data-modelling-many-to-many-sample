@@ -13,7 +13,9 @@
         </instance>
         <collection id="allSpecialtiesDc"
                     class="io.jmix.petclinic.entity.veterinarian.Specialty">
-            <fetchPlan extends="_base"/>
+            <fetchPlan extends="_base">
+                <property name="visits" fetchPlan="_base"/>
+            </fetchPlan>
             <loader id="allSpecialtiesDl">
                 <query>
                     <![CDATA[select e from petclinic_Specialty e]]>
