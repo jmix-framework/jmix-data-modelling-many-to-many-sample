@@ -15,10 +15,13 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+// tag::start-class[]
 @JmixEntity
 @Table(name = "PETCLINIC_TREATMENT_ROOM")
 @Entity(name = "petclinic_TreatmentRoom")
 public class TreatmentRoom {
+
+    // end::start-class[]
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id
@@ -28,11 +31,13 @@ public class TreatmentRoom {
     @Column(name = "NAME")
     private String name;
 
+    // tag::visits[]
     @JoinTable(name = "PETCLINIC_VISIT_TREATMENT_ROOM_LINK",
             joinColumns = @JoinColumn(name = "TREATMENT_ROOM_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "VISIT_ID", referencedColumnName = "ID"))
     @ManyToMany
     private List<Visit> visits;
+    // end::visits[]
 
     @DeletedBy
     @Column(name = "DELETED_BY")
@@ -141,4 +146,7 @@ public class TreatmentRoom {
     public void setId(UUID id) {
         this.id = id;
     }
+
+// tag::end-class[]
 }
+// end::end-class[]

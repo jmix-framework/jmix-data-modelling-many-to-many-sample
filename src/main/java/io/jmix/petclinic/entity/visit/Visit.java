@@ -29,6 +29,7 @@ import java.util.UUID;
 import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.DONE;
 import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.IN_PROGRESS;
 
+// tag::start-class[]
 @JmixEntity
 @Table(name = "PETCLINIC_VISIT", indexes = {
         @Index(name = "IDX_PETCLINIC_VISIT_ASSIGNED_NURSE", columnList = "ASSIGNED_NURSE_ID"),
@@ -36,23 +37,40 @@ import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.IN_PROGRESS;
 })
 @Entity(name = "petclinic_Visit")
 public class Visit {
+
+    // end::start-class[]
+
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id
     private UUID id;
 
+    // tag::required-specialties[]
     @OnDelete(DeletePolicy.CASCADE)
-    @JoinTable(name = "PETCLINIC_VISIT_SPECIALTY_LINK",
+    @JoinTable(
+            name = "PETCLINIC_VISIT_SPECIALTY_LINK",
             joinColumns = @JoinColumn(name = "VISIT_ID", referencedColumnName = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "SPECIALTY_ID", referencedColumnName = "ID"))
+            inverseJoinColumns = @JoinColumn(name = "SPECIALTY_ID", referencedColumnName = "ID")
+    )
     @ManyToMany
     private List<Specialty> requiredSpecialities;
 
+    public List<Specialty> getRequiredSpecialities() {
+        return requiredSpecialities;
+    }
+
+    public void setRequiredSpecialities(List<Specialty> requiredSpecialities) {
+        this.requiredSpecialities = requiredSpecialities;
+    }
+    // end::required-specialties[]
+
+    // tag::treatment-rooms[]
     @JoinTable(name = "PETCLINIC_VISIT_TREATMENT_ROOM_LINK",
             joinColumns = @JoinColumn(name = "VISIT_ID"),
             inverseJoinColumns = @JoinColumn(name = "TREATMENT_ROOM_ID"))
     @ManyToMany
     private List<TreatmentRoom> treatmentRooms;
+    // end::treatment-rooms[]
 
     @JoinColumn(name = "PET_ID", nullable = false)
     @NotNull
@@ -116,13 +134,6 @@ public class Visit {
         this.treatmentRooms = treatmentRooms;
     }
 
-    public List<Specialty> getRequiredSpecialities() {
-        return requiredSpecialities;
-    }
-
-    public void setRequiredSpecialities(List<Specialty> requiredSpecialities) {
-        this.requiredSpecialities = requiredSpecialities;
-    }
 
     @DependsOnProperties({"type"})
     @JmixProperty
@@ -297,5 +308,6 @@ public class Visit {
     private boolean inTreatmentStatus(VisitTreatmentStatus visitTreatmentStatus) {
         return getTreatmentStatus().equals(visitTreatmentStatus);
     }
-
+// tag::end-class[]
 }
+// end::end-class[]

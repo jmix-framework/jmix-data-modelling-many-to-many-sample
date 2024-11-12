@@ -18,9 +18,11 @@ import jakarta.persistence.ManyToMany;
 public class Veterinarian extends Person {
 
     @OnDelete(DeletePolicy.CASCADE)
-    @JoinTable(name = "PETCLINIC_VET_SPECIALTY_LINK",
+    @JoinTable(
+            name = "PETCLINIC_VET_SPECIALTY_LINK",
             joinColumns = @JoinColumn(name = "VETERINARIAN_ID"),
-            inverseJoinColumns = @JoinColumn(name = "SPECIALTY_ID"))
+            inverseJoinColumns = @JoinColumn(name = "SPECIALTY_ID")
+    )
     @ManyToMany
     private List<Specialty> specialties;
 

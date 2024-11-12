@@ -9,11 +9,11 @@
                 <property name="pet" fetchPlan="_base"/>
                 <property name="assignedNurse" fetchPlan="_base"/>
                 <property name="treatmentRooms" fetchPlan="_base"/>
-                <property name="requiredSpecialities" fetchPlan="_base"/>
+                <property name="requiredSpecialties" fetchPlan="_base"/>
             </fetchPlan>
             <loader/>
             <collection id="treatmentRoomsDc" property="treatmentRooms"/>
-            <collection id="requiredSpecialitiesDc" property="requiredSpecialities"/>
+            <collection id="requiredSpecialitiesDc" property="requiredSpecialties"/>
         </instance>
         <collection id="petsDc"
                     class="io.jmix.petclinic.entity.pet.Pet">

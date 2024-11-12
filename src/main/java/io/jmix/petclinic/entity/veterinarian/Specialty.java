@@ -9,11 +9,18 @@ import jakarta.persistence.Table;
 
 import java.util.List;
 
+// tag::start-class[]
 @JmixEntity
 @Table(name = "PETCLINIC_SPECIALTY")
 @Entity(name = "petclinic_Specialty")
 public class Specialty extends NamedEntity {
-    @ManyToMany(mappedBy = "requiredSpecialities")
+
+    // ... inherits attributes from NamedEntity, mainly "name"
+
+    // end::start-class[]
+
+    // tag::visits-association[]
+    @ManyToMany(mappedBy = "requiredSpecialties")
     private List<Visit> visits;
 
     public List<Visit> getVisits() {
@@ -23,4 +30,8 @@ public class Specialty extends NamedEntity {
     public void setVisits(List<Visit> visits) {
         this.visits = visits;
     }
+    // end::visits-association[]
+
+// tag::end-class[]
 }
+// end::end-class[]

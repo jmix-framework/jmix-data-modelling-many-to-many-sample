@@ -7,7 +7,7 @@
         <collection id="visitsDc"
                     class="io.jmix.petclinic.entity.visit.Visit">
             <fetchPlan extends="_base">
-                <property name="requiredSpecialities" fetchPlan="_base"/>
+                <property name="requiredSpecialties" fetchPlan="_base"/>
                 <property name="pet" fetchPlan="_base"/>
                 <property name="assignedNurse" fetchPlan="_base"/>
             </fetchPlan>
