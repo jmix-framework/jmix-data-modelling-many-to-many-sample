@@ -29,7 +29,7 @@ In this guide, we will enhance the https://github.com/Jmix-framework/Jmix-petcli
 * `Veterinarian` -> `Specialty`: Modeled as a unidirectional many-to-many association, where each veterinarian can have multiple specialties without a reciprocal reference from `Specialty`.
 * `Visit` <-> `Specialty`: Modeled as a bidirectional many-to-many association with `Visit` as the owning side, allowing each visit to track multiple specialties, and each specialty to reference the visits in which it is involved.
 * `Visit` <-> `TreatmentRoom`: Modeled as a bidirectional many-to-many association with both sides as owning sides, allowing visits and treatment rooms to independently manage their associations.
-* `Pet` <-> `InsuranceCompany`: Modeled as an indirect many-to-many association with an explicit entity that stores the validity range, allowing each pet to be insured by multiple companies with defined coverage periods.
+* `Pet` <-> `InsuranceProvider`: Modeled as an indirect many-to-many association with an explicit entity that stores the validity range, allowing each pet to be insured by multiple companies with defined coverage periods.
 
 [[final-application]]
 === Final Application
@@ -38,7 +38,15 @@ video::zTYx_KSeMzY[youtube,width=1280,height=600]
 
 == Understanding Many-to-Many Associations
 
-In a many-to-many association, records in one entity are related to multiple records in another entity, and vice versa. This type of relationship is common in applications and can be configured in various ways depending on the requirements of the business logic and data model. In this article, we will explore three dimensions of many-to-many associations that determine how these relationships are structured and managed on both the database and application levels:
+In a many-to-many association, records in one entity are related to multiple records in another entity, and vice versa. This type of relationship is common in applications and can be configured in various ways depending on the requirements of the business logic and data model. 
+
+But before we dive into the different types of many-to-many associations, let's look briefly how Jmix by default represents a many-to-many association in the UI. Below, you can see the Treatment Room Detail View, which shows the list of associated Visits for a treatment room, allowing users to manage these associations using "Add" and "Remove" buttons.
+
+image::treatmentroom_detail_view_visits.png[alt="Treatment Room Detail View with Visits Management", title="Treatment Room Detail View"]
+
+Now that we've seen how Jmix handles many-to-many associations in the UI by default, let's dive deeper into the theory and explore the different types of many-to-many relationships, examining their configurations, implications, and practical applications in greater detail.
+
+There are three dimensions of many-to-many associations that determine how these relationships are structured and managed on both the database and application levels:
 
 1. **Direct vs. Indirect Many-to-Many Association**: This dimension distinguishes between direct associations, where the two entities are directly connected without an intermediate mapping entity, and indirect associations, where a separate mapping entity represents the relationship. In both cases, a join table is used at the database level, but only indirect associations have a dedicated JPA entity to represent this join table.
 
@@ -50,7 +58,7 @@ In a many-to-many association, records in one entity are related to multiple rec
 ====
 While the three dimensions described here — mapping, direction, and ownership — differ in how they manage and interact with data on the Java/JPA level, they all share a common structure at the database level. Every many-to-many association, regardless of its configuration in Java, involves a dedicated join table in the database that holds the foreign keys for each associated entity.
 
-The distinctions we’re discussing apply only to the Java/JPA layer and affect how data is accessed, managed, and updated within the application, not how it’s stored in the database.
+The distinctions we're discussing apply only to the Java/JPA layer and affect how data is accessed, managed, and updated within the application, not how it's stored in the database.
 ====
 
 The following table summarizes the main characteristics of each dimension and provides examples of common configurations in the Petclinic application:
@@ -69,7 +77,7 @@ The following table summarizes the main characteristics of each dimension and pr
 
 | **Mapping ⇄** Is there a dedicated JPA entity for the association table? | Direct | No intermediate mapping entity; the association is directly configured between the entities. | `Visit` ⇄ `Specialty`
 
-|                          | Indirect | Uses an intermediate mapping entity to represent the association, allowing for additional attributes. | `Pet` ← `InsuranceMembership` → `InsuranceCompany`
+|                          | Indirect | Uses an intermediate mapping entity to represent the association, allowing for additional attributes. | `Pet` ← `InsuranceMembership` → `InsuranceProvider`
 |===
 
 These three dimensions are largely independent of each other and can be combined in various ways to suit different use cases. However, there is one exception: a unidirectional association implies a single owning side, as only one entity references the other.
@@ -82,11 +90,11 @@ This means you can configure a many-to-many association as:
 - Indirect, bidirectional, with a single owning side
 - Indirect, bidirectional, with both sides as owning
 
-Each variant is suited for different scenarios, and we have created specific examples for most of these configurations in the Petclinic application. In the following sections, we’ll examine these examples in detail, exploring the benefits and implications of each.
+Each variant is suited for different scenarios, and we have created specific examples for most of these configurations in the Petclinic application. In the following sections, we'll examine these examples in detail, exploring the benefits and implications of each.
 
 == Direction: Unidirectional vs. Bidirectional
 
-In this section, we’ll explore how many-to-many associations can be configured as either unidirectional or bidirectional. A unidirectional association allows navigation from only one entity to the other, while a bidirectional association enables navigation from both entities. This distinction affects only the Java level; at the database level, the underlying join table remains the same.
+In this section, we'll explore how many-to-many associations can be configured as either unidirectional or bidirectional. A unidirectional association allows navigation from only one entity to the other, while a bidirectional association enables navigation from both entities. This distinction affects only the Java level; at the database level, the underlying join table remains the same.
 
 === Unidirectional Many-to-Many Association
 
@@ -155,18 +163,32 @@ JOIN PETCLINIC_VETERINARIAN v ON v.ID = vs.VETERINARIAN_ID
 WHERE v.LAST_NAME = :lastName;
 ----
 
-While JMix applications use JPA to handle database interactions, direct SQL queries like this are technically possible and can leverage the full bidirectional access provided by the relational database structure, even for a unidirectional many-to-many association.
+While Jmix applications use JPA to handle database interactions, direct SQL queries like this are technically possible and can leverage the full bidirectional access provided by the relational database structure, even for a unidirectional many-to-many association.
 ====
 
-==== UI Impact of Unidirectional Many-to-Many Associations in JMix
+==== UI Impact of Unidirectional Many-to-Many Associations in Jmix
 
-In JMix, unidirectional many-to-many associations affect how the relationship is represented in the user interface. Since `Veterinarian` has an association to `Specialty`, JMix Studio will generate a section in the `VeterinarianDetailView` to manage this association. In this view, you’ll find a data grid, allowing users to add or remove specialties associated with a veterinarian.
+In Jmix, unidirectional many-to-many associations affect how the relationship is represented in the user interface. Since `Veterinarian` has an association to `Specialty`, Jmix Studio will generate a section in the `VeterinarianDetailView` to manage this association.
 
-image::ui/veterinarian_detail_view_specialties.png[alt="Veterinarian Detail View with Specialties Section", title="Veterinarian Detail View"]
+image::veterinarian_detail_view_specialties_multiselect.png[alt="Veterinarian Detail View with Specialties Section", title="Veterinarian Detail View"]
 
-However, because `Specialty` does not hold a reciprocal reference to `Veterinarian`, there will be no corresponding section in the `SpecialtyDetailView`. This means that in the `Specialty` detail view, you will not see a list of associated veterinarians, as JMix Studio does not generate UI elements for a relationship that isn’t explicitly defined on both sides.
+Below the "Specialties" field, you can see the associations being managed directly. Users can select or deselect specialties to manage the relationship between the Veterinarian and the Specialty entities.
 
-image::ui/specialty_detail_view_no_veterinarians.png[alt="Specialty Detail View without Veterinarian Section", title="Specialty Detail View"]
+[NOTE]
+====
+Unlike the standard behavior seen above, we have used a Multi-Select Combo Box Picker in this example. This adjustment is particularly useful when the number of selectable options is small, as is the case with `Specialties`. The dropdown simplifies the interface and provides a cleaner, more intuitive way to manage these associations.
+
+For more information about the Multi-Select Combo Box Picker, refer to the Jmix UI Samples:
+https://demo.jmix.io/ui-samples/sample/multi-select-combo-box-picker[Multi-Select Combo Box Picker^].
+
+For more information, see xref:src/main/resources/io/jmix/petclinic/view/veterinarian/veterinarian/veterinarian-detail-view.xml[veterinarian-detail-view.xml]
+====
+
+Now that we've examined the Veterinarian side of the relationship, let's turn our attention to the Specialty side. Since this is a unidirectional association, Specialty does not reference Veterinarian. As a result, the `SpecialtyDetailView` does not include any UI components for managing this association.
+
+Jmix Studio does not generate UI elements for relationships that are not explicitly defined in the Java model. Because the Specialty entity lacks a reciprocal association to Veterinarian, there are no components for displaying or managing veterinarians in the `SpecialtyDetailView`.
+
+image::specialty_detail_view_no_veterinarians.png[alt="Specialty Detail View without Veterinarian Section", title="Specialty Detail View"]
 
 === Bidirectional Many-to-Many Association
 
@@ -195,7 +217,7 @@ The `visits` field in `Specialty` includes a `mappedBy` attribute on the `@ManyT
 
 ==== Data Access in Bidirectional Many-to-Many Associations
 
-With a bidirectional association, it’s possible to query from both directions. For instance, if we want to retrieve all `Visits` associated with a specific `Specialty`, we could use a JPQL query like this:
+With a bidirectional association, it's possible to query from both directions. For instance, if we want to retrieve all `Visits` associated with a specific `Specialty`, we could use a JPQL query like this:
 
 .JPQL Query Example for Bidirectional Many-to-Many
 [source,jpaql]
@@ -211,21 +233,23 @@ On the Java level, the `Visit` entity can directly retrieve the required special
 [source,java]
 ----
 Visit visit = // ...
-List<Specialty> requiredSpecialties = visit.getRequiredSpecialities();
+List<Specialty> requiredSpecialties = visit.getRequiredSpecialties();
 ----
 
 This code snippet illustrates how the `getRequiredSpecialties()` method on `Visit` allows access to the associated specialties, which can be useful for applications requiring specific treatments or expertise for visits.
 
-==== UI Impact of Bidirectional Many-to-Many Associations in JMix
+==== UI Impact of Bidirectional Many-to-Many Associations in Jmix
 
-In a bidirectional many-to-many association, JMix Studio generates UI components on both sides of the relationship. Since both `Visit` and `Specialty` reference each other, JMix will create data grids or tables in both the `VisitDetailView` and the `SpecialtyDetailView`. This enables users to see the relationship from either side in the application’s UI.
+In a bidirectional many-to-many association, Jmix Studio generates UI components on both sides of the relationship. Since both `Visit` and `Specialty` reference each other, Jmix will create data grids or tables in both the `VisitDetailView` and the `SpecialtyDetailView`. This enables users to see the relationship from either side in the application's UI.
 
 
-image::ui/visit_detail_view_specialties.png[alt="Visit Detail View with Specialties Section", title="Visit Detail View"]
+image::visit_detail_view_specialties.png[alt="Visit Detail View with Specialties Section", title="Visit Detail View"]
 
-image::ui/specialty_detail_view_visits.png[alt="Specialty Detail View with Visits Section", title="Specialty Detail View"]
+image::specialty_detail_view_visits.png[alt="Specialty Detail View with Visits Section", title="Specialty Detail View"]
 
-In this configuration, users can view and edit the associated `Specialties` from a `Visit` detail view, and likewise, they can see and manage associated `Visits` from a `Specialty` detail view. However, whether the relationship can be managed (e.g., with "Add" and "Remove" options) depends on the ownership configuration, which we will explore in the next section on **Owning Side vs. Non-Owning Side**.
+Users can view the associated `Specialties` from a `Visit` detail view, and likewise, they can see associated `Visits` from a `Specialty` detail view. 
+
+However, whether the relationship can be managed via "Add" and "Remove" buttons on the data grid depends on the ownership configuration, which we will explore in the next section on **Owning Side vs. Non-Owning Side**.
 
 == Owning Side: Single Owning Side vs. Both Sides as Owning Sides
 
@@ -233,9 +257,9 @@ The concept of the owning side in a many-to-many association determines which en
 
 === Single Owning Side
 
-In a configuration with a single owning side, only one entity is responsible for managing updates to the join table, which simplifies relationship management by centralizing control. In our previous example of the many-to-many association between `Visit` and `Specialty`, we already saw this setup in action within the UI: JMix generated components in both the `VisitDetailView` and the `SpecialtyDetailView`, allowing users to view the association from either side. However, we focused primarily on the association itself in that context.
+In a configuration with a single owning side, only one entity is responsible for managing updates to the join table, which simplifies relationship management by centralizing control. In our previous example of the many-to-many association between `Visit` and `Specialty`, we already saw this setup in action within the UI: Jmix generated components in both the `VisitDetailView` and the `SpecialtyDetailView`, allowing users to view the association from either side. However, we focused primarily on the association itself in that context.
 
-Now, we’ll revisit this example with a specific focus on the concept of ownership. You may have noticed that only the `Visit` side allowed for active management of the relationship (e.g., adding or removing `Specialties` for a `Visit`). This difference in UI behavior occurs because `Visit` is designated as the owning side, while `Specialty` is the non-owning side. Let’s examine how this is defined in the Java code for both entities.
+Now, we'll revisit this example with a specific focus on the concept of ownership. You may have noticed that only the `Visit` side allowed for active management of the relationship (e.g., adding or removing `Specialties` for a `Visit`). This difference in UI behavior occurs because `Visit` is designated as the owning side, while `Specialty` is the non-owning side. Let's examine how this is defined in the Java code for both entities.
 
 .Visit.java
 [source,java]
@@ -262,7 +286,7 @@ This configuration ensures that `Specialty` is aware of its association with `Vi
 
 In bidirectional associations with a single owning side, data access for querying remains possible from both entities, as it is still a bidirectional relationship. The owning side designation only determines which entity manages updates to the join table; it does not affect the ability to query from either side.
 
-To illustrate this, imagine a service called `VisitSpecialtyService` that includes methods for adding `Specialties` to a `Visit` (the owning side) and adding `Visits` to a `Specialty` (the non-owning side). Here’s how the service might look:
+To illustrate this, imagine a service called `VisitSpecialtyService` that includes methods for adding `Specialties` to a `Visit` (the owning side) and adding `Visits` to a `Specialty` (the non-owning side). Here's how the service might look:
 
 [source,java]
 ----
@@ -296,15 +320,16 @@ In this example, the `addSpecialtiesToVisit` method will successfully persist th
 Be cautious when working with non-owning sides in single owning side associations. Attempting to update the relationship from the non-owning side, such as by calling `addVisitsToSpecialty`, will result in the changes not being persisted, without any error or warning. This behavior is by design in JPA and requires careful consideration to ensure updates are made only from the designated owning side.
 ====
 
-==== UI Impact of Single Owning Side Associations in JMix
+==== UI Impact of Single Owning Side Associations in Jmix
 
 You may have noticed that in the `SpecialtyDetailView` screenshot above, the table displaying associated `Visits` lacked "Add" and "Remove" buttons. This is because `Specialty` was configured as the non-owning side of the association, meaning that it does not control the relationship and therefore cannot provide options to manage it in the UI.
 
-image::ui/visit_detail_view_specialties.png[alt="Visit Detail View with Specialties Management", title="Visit Detail View with Add/Remove Controls"]
+image::specialty_detail_view_visits.png[alt="Specialty Detail View with Visits Display Only", title="Specialty Detail View without Add/Remove Controls"]
 
-In contrast, the `VisitDetailView` allows users to manage `Specialty` associations by providing "Add" and "Remove" controls. This difference in functionality reflects the ownership configuration, where only the owning side (`Visit`) has the ability to control the association in the UI.
 
-image::ui/specialty_detail_view_visits_readonly.png[alt="Specialty Detail View with Visits Display Only", title="Specialty Detail View without Add/Remove Controls"]
+In contrast, the `VisitDetailView` allows users to manage `Specialty` associations by providing "Add" and "Remove" controls. This difference in functionality reflects the ownership, where only the owning side (`Visit`) has the ability to control the association in the UI.
+
+image::visit_detail_view_specialties.png[alt="Visit Detail View with Specialties Management", title="Visit Detail View with Add/Remove Controls"]
 
 [WARNING]
 ====
@@ -313,11 +338,11 @@ Even if you manually add "Add" and "Remove" buttons to the `SpecialtyDetailView`
 
 === Both Sides as Owning Sides
 
-Oftentimes, it’s not entirely clear which entity should manage the association, or it may be desirable to manage the relationship from both sides. Given that JPA silently ignores updates from the non-owning side, it can be challenging to work with a single owning side without careful tracking. For this reason, the default behavior in JMix Studio when generating a bidirectional many-to-many association is to configure both sides as owning sides, allowing management of the relationship from either side.
+Oftentimes, it's not entirely clear which entity should manage the association, or it may be desirable to manage the relationship from both sides. Given that JPA silently ignores updates from the non-owning side, it can be challenging to work with a single owning side without careful tracking. For this reason, the default behavior in Jmix Studio when generating a bidirectional many-to-many association is to configure both sides as owning sides, allowing management of the relationship from either side.
 
 [TIP]
 ====
-When you create a bidirectional many-to-many association in JMix Studio, it will by default set both entities as owning sides. This default setup provides flexibility by allowing relationship management from both sides without risking data loss from unsaved updates.
+When you create a bidirectional many-to-many association in Jmix Studio, it will by default set both entities as owning sides. This default setup provides flexibility by allowing relationship management from both sides without risking data loss from unsaved updates.
 ====
 
 When both entities are designated as owning sides, each can independently manage updates to the join table. This setup provides greater flexibility, as it allows both entities to directly control the relationship. However, it requires careful data management to avoid inconsistencies. In the Petclinic application, an example of this configuration is the relationship between `Visit` and `TreatmentRoom`.
@@ -340,7 +365,7 @@ With both sides set as owning sides, updates to the association can be managed e
 
 ==== Data Access in Both Owning Sides Associations
 
-In a bidirectional many-to-many association where both sides are configured as owning, data access—both for reading and updating—can be managed from either entity. To illustrate this, here’s an example service `VisitTreatmentRoomService` with methods that add one or more `TreatmentRoom` instances to a `Visit` and vice versa. This service allows flexible relationship management from either side.
+In a bidirectional many-to-many association where both sides are configured as owning, data access—both for reading and updating—can be managed from either entity. To illustrate this, here's an example service `VisitTreatmentRoomService` with methods that add one or more `TreatmentRoom` instances to a `Visit` and vice versa. This service allows flexible relationship management from either side.
 
 [source,java]
 ----
@@ -366,26 +391,91 @@ public class VisitTreatmentRoomService {
 
 This example demonstrates that it is possible to manage associations from both sides in a bidirectional, both-owning setup. Calling `DataManager.save` in either method will correctly persist the associations, as both `Visit` and `TreatmentRoom` are configured as owning sides. This allows flexible control over the relationship, enabling updates from whichever entity fits the business requirements.
 
-==== UI Impact of Both Owning Sides Associations in JMix
+==== UI Impact of Both Owning Sides Associations in Jmix
 
-In JMix, having both entities as owning sides enables full UI management of the relationship from either side. Since both `Visit` and `TreatmentRoom` independently manage the association, JMix Studio will generate data grids and controls for adding or removing associations in both the `VisitDetailView` and the `TreatmentRoomDetailView`.
+In Jmix, having both entities as owning sides enables full UI management of the relationship from either side. Since both `Visit` and `TreatmentRoom` independently manage the association, Jmix Studio will generate data grids and controls for adding or removing associations in both the `VisitDetailView` and the `TreatmentRoomDetailView`.
 
-image::ui/visit_detail_view_treatmentrooms.png[alt="Visit Detail View with TreatmentRooms Management", title="Visit Detail View"]
+image::visit_detail_view_treatmentrooms.png[alt="Visit Detail View with TreatmentRooms Management", title="Visit Detail View"]
 
-image::ui/treatmentroom_detail_view_visits.png[alt="Treatment Room Detail View with Visits Management", title="Treatment Room Detail View"]
+image::treatmentroom_detail_view_visits.png[alt="Treatment Room Detail View with Visits Management", title="Treatment Room Detail View"]
 
 This configuration allows users to manage the association from both `Visit` and `TreatmentRoom` views, providing maximum flexibility in the UI.
 
+However, if we take a closer look, we can see some potential limitations in this approach. Simply linking `Visits` with `TreatmentRooms` directly without any additional scheduling information may lead to conflicts. Since we don't currently account for timing, it's likely that `TreatmentRooms` could be double-booked, with multiple `Visits` attempting to use the same room at overlapping times.
+
+To address this, we would need a way to include temporal data with each room assignment—for example, specifying that a `Visit` requires `TreatmentRoom` A from 8AM to 8:30AM and `TreatmentRoom` B from 8:30 to 9:30AM. Managing such additional information within the relationship itself is not possible in a direct many-to-many association. This is where an **Indirect Many-to-Many Mapping** becomes valuable, allowing us to include attributes directly within the association to handle these scheduling needs.
+
+In the next section, we'll explore how to use indirect mapping to manage relationships with additional attributes.
+
+== Mapping: Direct vs. Indirect Many-to-Many Associations
+
+In this final section, we will discuss the concept of **Direct** versus **Indirect** mapping in many-to-many associations. Both types use a join table in the database to manage the relationship between entities. However, only the indirect association introduces an explicit JPA entity to represent the join table. This additional entity becomes essential when there is a need to store extra attributes within the relationship.
+
+=== Direct Many-to-Many Mapping
+
+All the examples we have discussed so far demonstrate **direct many-to-many associations**. In each case, the entities were directly referenced from each other, without an intermediate entity representing the join table in the JPA model. Although a join table exists on the database level, it is not explicitly modeled as a JPA entity.
+
+Because direct mapping has already been covered extensively in the previous sections, we won't go into further detail here.
+
+=== Indirect Many-to-Many Mapping with Join Entity
+
+In contrast to direct mapping, **indirect mapping** creates an explicit entity to represent the join table. This approach is particularly useful when additional attributes need to be stored in the join table itself. In our Petclinic example, the `InsuranceCoverage` entity serves as the join entity, capturing details like the validity period of the insurance policy for each pet.
+
+image::data-model-many-to-many/indirect_many_to_many.png[align="center"]
+
+For instance, a `Pet` may be insured by multiple `InsuranceProvider` entries over time, and each `InsuranceProvider` may cover multiple `Pet` entries. Here, `InsuranceCoverage` acts as the join entity, allowing us to record additional information, such as the start and end dates of each insurance policy.
+
+==== Data Model
+
+In the indirect mapping configuration, the `InsuranceCoverage` entity establishes the many-to-many relationship between `Pet` and `InsuranceProvider` while also holding additional fields for the validity range:
+
+.Pet.java
+[source, java]
+----
+include::example$/src/main/java/io/jmix/petclinic/entity/pet/Pet.java[tags=start-class;insurance-coverages;end-class]
+----
+
+In the `Pet` entity, the `insuranceCoverages` attribute is a one-to-many composition of `InsuranceCoverage` instances, which allows each `Pet` to reference multiple insurance records over time.
+
+.InsuranceProvider.java
+[source, java]
+----
+include::example$/src/main/java/io/jmix/petclinic/entity/insurance/InsuranceProvider.java[tags=class]
+----
+
+Similarly, the `InsuranceProvider` entity has a one-to-many composition of `InsuranceCoverage` instances, enabling each company to manage a record of its insured pets.
+
+.InsuranceCoverage.java
+[source, java]
+----
+include::example$/src/main/java/io/jmix/petclinic/entity/insurance/InsuranceCoverage.java[tags=start-class;attributes;end-class]
+----
+
+The `InsuranceCoverage` entity includes references to both `Pet` and `InsuranceProvider` and captures the `validFrom` and `validUntil` dates to represent the insurance policy's duration.
+
+==== Data Access and UI Impact
+
+The indirect mapping configuration affects both data access and the UI. Since `InsuranceCoverage` is a distinct entity, it can be managed, queried, and displayed directly. For example, in the Pet detail view, users can see the list of associated `InsuranceProvider` entries along with the validity range for each policy.
+
+In Jmix Studio, setting up an indirect association like this provides flexibility for adding fields and custom data entry forms. The UI can include dedicated tables or sections for `InsuranceCoverage`, simplifying the management of insurance policies and providing clear visibility into each pet's insurance history.
+
+=== Ownership and Direction
+
+Similar to *direct* many-to-many associations, *indirect* many-to-many relationships using a join entity also allow flexible configuration of both direction and ownership. A unidirectional relationship can be established by omitting a reference to the join entity on one side. For instance, if an InsuranceProvider should not directly access InsuranceCoverage entries, this can be achieved by simply excluding an attribute in the Java class, thereby creating a unidirectional many-to-many association from the Pet side only.
+
+In bidirectional relationships, ownership can likewise be defined, specifying which entity "owns" and manages the association. If InsuranceCoverage entries should only be controlled from the Pet entity, this can be set up with a One-to-Many association via `@Composition` from the Pet side, while InsuranceProvider only contains a regular `@OneToMany` association. The choice between composition and association enables the desired level of control.
 
 [[summary]]
 == Summary
 
-TODO: talk about different list types: Set, List usw.
-TODO: JMix durch Jmix ersetzen
+In this guide, we examined many-to-many relationships, a crucial aspect of data modeling when entities need to reference multiple instances of each other. Many-to-many relationships support flexible, interconnected data structures by linking entities like pets and insurance providers or veterinarians and specialties. These associations are managed with a join table, which stores the primary keys of each entity, providing a consistent structure at the database level to enable complex relationships.
 
-Two - three paragraphs of summary text
+We looked at three key dimensions of many-to-many relationships: Mapping, Direction, and Ownership. Mapping distinguishes between direct associations, where two entities are connected without an intermediary, and indirect associations, where a join entity allows for storing additional information about the relationship. Direction determines whether an association is unidirectional, allowing navigation from only one entity, or bidirectional, enabling access from both sides. Ownership identifies which entity controls the relationship in a bidirectional association, affecting where updates to the join table are managed. While these distinctions define data access and management on the Java/JPA level, the underlying join table remains structurally the same in the database.
+
+Depending on your use case and requirements, you can choose the appropriate many-to-many configuration to ensure optimal access and management of relationships. This flexibility allows you to tailor your data model precisely, aligning it with the specific functional needs of your application while maintaining efficient control and clarity in your data interactions.
 
 [[further-information]]
 === Further Information
 
+TODO: talk about different list types: Set, List usw.
 * xref:data-access:entity-events.adoc[]

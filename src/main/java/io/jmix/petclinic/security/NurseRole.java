@@ -1,6 +1,8 @@
 package io.jmix.petclinic.security;
 
 import io.jmix.petclinic.entity.User;
+import io.jmix.petclinic.entity.insurance.InsuranceCoverage;
+import io.jmix.petclinic.entity.insurance.InsuranceProvider;
 import io.jmix.petclinic.entity.owner.Owner;
 import io.jmix.petclinic.entity.pet.Pet;
 import io.jmix.petclinic.entity.pet.PetType;
@@ -49,13 +51,21 @@ public interface NurseRole {
     @EntityPolicy(entityClass = PetType.class, actions = EntityPolicyAction.READ)
     void petType();
 
-    @ViewPolicy(viewIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_Owner.detail", "petclinic_Pet.detail", "petclinic_PetType.detail", "petclinic_PetType.lookup", "petclinic_Specialty.detail", "petclinic_Veterinarian.detail", "petclinic_Visit.detail", "petclinic_TreatmentRoom.list", "petclinic_TreatmentRoom.detail", "petclinic_Visit.lookup"})
+    @ViewPolicy(viewIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_Owner.detail", "petclinic_Pet.detail", "petclinic_PetType.detail", "petclinic_PetType.lookup", "petclinic_Specialty.detail", "petclinic_Veterinarian.detail", "petclinic_Visit.detail", "petclinic_TreatmentRoom.list", "petclinic_TreatmentRoom.detail", "petclinic_Visit.lookup", "petclinic_InsuranceProvider.list", "petclinic_InsuranceCoverage.detail", "petclinic_InsuranceProvider.detail"})
     void views();
 
-    @MenuPolicy(menuIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_TreatmentRoom.list", "petclinic_Visit.lookup"})
+    @MenuPolicy(menuIds = {"petclinic_MyVisits", "petclinic_Pet.list", "petclinic_Owner.list", "petclinic_Visit.list", "petclinic_Specialty.list", "petclinic_Veterinarian.list", "petclinic_PetType.list", "petclinic_TreatmentRoom.list", "petclinic_Visit.lookup", "petclinic_InsuranceProvider.list"})
     void screens();
 
     @EntityAttributePolicy(entityClass = TreatmentRoom.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @EntityPolicy(entityClass = TreatmentRoom.class, actions = EntityPolicyAction.ALL)
     void treatmentRoom();
+
+    @EntityAttributePolicy(entityClass = InsuranceCoverage.class, attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @EntityPolicy(entityClass = InsuranceCoverage.class, actions = EntityPolicyAction.ALL)
+    void insuranceCoverage();
+
+    @EntityAttributePolicy(entityClass = InsuranceProvider.class, attributes = "*", action = EntityAttributePolicyAction.VIEW)
+    @EntityPolicy(entityClass = InsuranceProvider.class, actions = EntityPolicyAction.READ)
+    void insuranceProvider();
 }

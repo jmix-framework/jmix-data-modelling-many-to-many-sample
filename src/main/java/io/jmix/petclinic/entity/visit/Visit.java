@@ -53,14 +53,14 @@ public class Visit {
             inverseJoinColumns = @JoinColumn(name = "SPECIALTY_ID", referencedColumnName = "ID")
     )
     @ManyToMany
-    private List<Specialty> requiredSpecialities;
+    private List<Specialty> requiredSpecialties;
 
-    public List<Specialty> getRequiredSpecialities() {
-        return requiredSpecialities;
+    public List<Specialty> getRequiredSpecialties() {
+        return requiredSpecialties;
     }
 
-    public void setRequiredSpecialities(List<Specialty> requiredSpecialities) {
-        this.requiredSpecialities = requiredSpecialities;
+    public void setRequiredSpecialties(List<Specialty> requiredSpecialties) {
+        this.requiredSpecialties = requiredSpecialties;
     }
     // end::required-specialties[]
 
