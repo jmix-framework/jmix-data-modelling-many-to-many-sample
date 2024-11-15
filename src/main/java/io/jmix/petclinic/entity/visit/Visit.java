@@ -1,8 +1,10 @@
 package io.jmix.petclinic.entity.visit;
 
+import io.jmix.core.DeletePolicy;
 import io.jmix.core.annotation.DeletedBy;
 import io.jmix.core.annotation.DeletedDate;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
+import io.jmix.core.entity.annotation.OnDelete;
 import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -10,6 +12,7 @@ import io.jmix.core.metamodel.annotation.JmixProperty;
 import io.jmix.petclinic.entity.NamedEntity;
 import io.jmix.petclinic.entity.User;
 import io.jmix.petclinic.entity.pet.Pet;
+import io.jmix.petclinic.entity.veterinarian.Specialty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.annotation.CreatedBy;
@@ -19,12 +22,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.DONE;
 import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.IN_PROGRESS;
 
+// tag::start-class[]
 @JmixEntity
 @Table(name = "PETCLINIC_VISIT", indexes = {
         @Index(name = "IDX_PETCLINIC_VISIT_ASSIGNED_NURSE", columnList = "ASSIGNED_NURSE_ID"),
@@ -32,10 +37,40 @@ import static io.jmix.petclinic.entity.visit.VisitTreatmentStatus.IN_PROGRESS;
 })
 @Entity(name = "petclinic_Visit")
 public class Visit {
+
+    // end::start-class[]
+
     @JmixGeneratedValue
     @Column(name = "ID", nullable = false)
     @Id
     private UUID id;
+
+    // tag::required-specialties[]
+    @OnDelete(DeletePolicy.CASCADE)
+    @JoinTable(
+            name = "PETCLINIC_VISIT_SPECIALTY_LINK",
+            joinColumns = @JoinColumn(name = "VISIT_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "SPECIALTY_ID", referencedColumnName = "ID")
+    )
+    @ManyToMany
+    private List<Specialty> requiredSpecialties;
+
+    public List<Specialty> getRequiredSpecialties() {
+        return requiredSpecialties;
+    }
+
+    public void setRequiredSpecialties(List<Specialty> requiredSpecialties) {
+        this.requiredSpecialties = requiredSpecialties;
+    }
+    // end::required-specialties[]
+
+    // tag::treatment-rooms[]
+    @JoinTable(name = "PETCLINIC_VISIT_TREATMENT_ROOM_LINK",
+            joinColumns = @JoinColumn(name = "VISIT_ID"),
+            inverseJoinColumns = @JoinColumn(name = "TREATMENT_ROOM_ID"))
+    @ManyToMany
+    private List<TreatmentRoom> treatmentRooms;
+    // end::treatment-rooms[]
 
     @JoinColumn(name = "PET_ID", nullable = false)
     @NotNull
@@ -90,6 +125,15 @@ public class Visit {
     @DeletedDate
     @Column(name = "DELETED_DATE")
     private OffsetDateTime deletedDate;
+
+    public List<TreatmentRoom> getTreatmentRooms() {
+        return treatmentRooms;
+    }
+
+    public void setTreatmentRooms(List<TreatmentRoom> treatmentRooms) {
+        this.treatmentRooms = treatmentRooms;
+    }
+
 
     @DependsOnProperties({"type"})
     @JmixProperty
@@ -264,5 +308,6 @@ public class Visit {
     private boolean inTreatmentStatus(VisitTreatmentStatus visitTreatmentStatus) {
         return getTreatmentStatus().equals(visitTreatmentStatus);
     }
-
+// tag::end-class[]
 }
+// end::end-class[]
