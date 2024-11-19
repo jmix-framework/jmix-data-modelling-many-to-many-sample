@@ -1,3 +1,4 @@
+// tag::all[]
 package io.jmix.petclinic.entity.veterinarian;
 
 import io.jmix.core.metamodel.annotation.JmixEntity;
@@ -35,3 +36,4 @@ public class Specialty extends NamedEntity {
 // tag::end-class[]
 }
 // end::end-class[]
+// end::all[]
